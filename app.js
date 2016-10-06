@@ -9,6 +9,7 @@ JS_Snake.game = (function () {
     JS_Snake.blockSize = 10;
     var frameLength = 100; //new frame every 100ms
     var snake;
+    var apple;
 
     function init() {
         $('body').append('<canvas id="jsSnake">');
@@ -18,6 +19,7 @@ JS_Snake.game = (function () {
         var canvas = $canvas[0];
         ctx = canvas.getContext("2d");
         snake = JS_Snake.snake();
+        apple = JS_Snake.apple();
         bindEvents();
         gameLoop();
     }
@@ -28,6 +30,7 @@ JS_Snake.game = (function () {
         ctx.clearRect(0, 0, JS_Snake.width, JS_Snake.height);
         snake.advance();
         snake.draw(ctx);
+        apple.draw(ctx);
         setTimeout(gameLoop, frameLength);
     }
 
@@ -42,8 +45,14 @@ JS_Snake.game = (function () {
             var key = event.which;
             var direction = keysToDirections[key];
 
+            if (direction) {
+                snake.setDirection(direction);
+                event.preventDefault();
+            } else if (key === 32) {
+                location.reload();
+            }
 
-        })
+        });
 
     }
 
@@ -52,14 +61,52 @@ JS_Snake.game = (function () {
     };
 })();
 
+JS_Snake.apple = function () {
+    var position = [6, 6];
+
+    function draw(ctx) {
+        ctx.save();
+        ctx.fillStyle = "green";
+        ctx.beginPath();
+        var radius = JS_Snake.blockSize / 2;
+        var x = position[0] * JS_Snake.blockSize + radius;
+        var y = position[1] * JS_Snake.blockSize + radius;
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+    return {
+        draw: draw
+    };
+};
+
 JS_Snake.snake = function () {
     var posArray = [];
     posArray.push([6, 4]);
     posArray.push([5, 4]);
     posArray.push([4, 4]);
     var direction = 'right';
+    var nextDirection = direction;
 
-    function set
+    function setDirection(newDirection) {
+        var allowedDirections;
+
+        switch (direction) {
+        case 'left':
+        case 'right':
+            allowedDirections = ["up", "down"];
+            break;
+        case 'up':
+        case 'down':
+            allowedDirections = ["left", "right"];
+            break;
+        default:
+            throw ("Invalid direction");
+        }
+        if (allowedDirections.indexOf(newDirection) > -1) {
+            nextDirection = newDirection;
+        }
+    }
 
     function drawSection(ctx, position) {
         var x = JS_Snake.blockSize * position[0];
@@ -78,7 +125,25 @@ JS_Snake.snake = function () {
 
     function advance() {
         var nextPosition = posArray[0].slice(); //copy head of snake
-        nextPosition[0] += 1; //add 1 to the x position
+        //nextPosition[0] += 1; //add 1 to the x position
+        direction = nextDirection;
+        switch (direction) {
+        case 'left':
+            nextPosition[0] -= 1;
+            break;
+        case 'up':
+            nextPosition[1] -= 1;
+            break;
+        case 'right':
+            nextPosition[0] += 1;
+            break;
+        case 'down':
+            nextPosition[1] += 1;
+            break;
+        default:
+            throw ("Invalid direction");
+        }
+
         //add the new position to the beginning of the array
         posArray.unshift(nextPosition);
         //and remove the last position
@@ -86,7 +151,8 @@ JS_Snake.snake = function () {
     }
     return {
         draw: draw,
-        advance: advance
+        advance: advance,
+        setDirection: setDirection
     };
 };
 
