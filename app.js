@@ -1,15 +1,33 @@
 var JS_Snake = {};
 
+JS_Snake.equalCoordinates = function (coord1, coord2) {
+    return coord1[0] === coord2[0] && coord1[1] === coord2[1];
+}
+
+JS_Snake.checkCoordinateInArray = function (coord, arr) {
+    var isInArray = false;
+    $.each(arr, function (index, item) {
+        if (JS_Snake.equalCoordinates(coord, item)) {
+            isInArray = true;
+        }
+    });
+    return isInArray;
+};
+
 JS_Snake.game = (function () {
-    var ctx;
+    var canvas, ctx;
     //var xPos = 0;
     //var yPos = 0;
     JS_Snake.width = 500;
     JS_Snake.height = 500;
     JS_Snake.blockSize = 10;
+    JS_Snake.widthInBlocks = JS_Snake.width / JS_Snake.blockSize;
+    JS_Snake.heightInBlocks = JS_Snake.height / JS_Snake.blockSize;
     var frameLength = 100; //new frame every 100ms
     var snake;
     var apple;
+    var score;
+    var timeout;
 
     function init() {
         $('body').append('<canvas id="jsSnake">');
@@ -18,6 +36,7 @@ JS_Snake.game = (function () {
         $canvas.attr("height", 500);
         var canvas = $canvas[0];
         ctx = canvas.getContext("2d");
+        score = 0;
         snake = JS_Snake.snake();
         apple = JS_Snake.apple();
         bindEvents();
@@ -28,10 +47,51 @@ JS_Snake.game = (function () {
         //xPos += 2;
         //yPos += 4;
         ctx.clearRect(0, 0, JS_Snake.width, JS_Snake.height);
-        snake.advance();
+        snake.advance(apple);
+        draw();
+
+        if (snake.checkCollision()) {
+            snake.retreat();
+            snake.draw(ctx);
+            gameOver();
+        } else {
+            timeout = setTimeout(gameLoop, frameLength);
+        }
+    }
+
+    function draw() {
         snake.draw(ctx);
+        //drawBorder();
         apple.draw(ctx);
-        setTimeout(gameLoop, frameLength);
+        drawScore();
+    }
+
+    function drawScore() {
+        ctx.save();
+        ctx.font = "bold 100px cursive";
+        ctx.fillStyle = 'rgba(0,0,0, 0.25)';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        var centerX = JS_Snake.width / 2;
+        var centerY = JS_Snake.height / 2;
+        ctx.fillText(score.toString(), centerX, centerY);
+        ctx.restore();
+    }
+
+    function gameOver() {
+        ctx.save();
+        ctx.font = "bold 40px sans-serif";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.lineWidth = 2;
+        var centerX = JS_Snake.width / 2;
+        var centerY = JS_Snake.height / 2;
+        ctx.fillText("Game Over", centerX, centerY);
+        ctx.font = "bold 20px sans-serif";
+        ctx.fillText("Press space to restart", centerX, centerY);
+        ctx.restore();
+
     }
 
     function bindEvents() {
@@ -66,7 +126,7 @@ JS_Snake.apple = function () {
 
     function draw(ctx) {
         ctx.save();
-        ctx.fillStyle = "green";
+        ctx.fillStyle = "red";
         ctx.beginPath();
         var radius = JS_Snake.blockSize / 2;
         var x = position[0] * JS_Snake.blockSize + radius;
