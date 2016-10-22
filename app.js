@@ -20,7 +20,7 @@ JS_Snake.game = (function () {
     //var yPos = 0;
     JS_Snake.width = 500;
     JS_Snake.height = 500;
-    JS_Snake.blockSize = 10;
+    JS_Snake.blockSize = 15;
     JS_Snake.widthInBlocks = JS_Snake.width / JS_Snake.blockSize;
     JS_Snake.heightInBlocks = JS_Snake.height / JS_Snake.blockSize;
     var frameLength = 100; //new frame every 100ms
@@ -51,7 +51,7 @@ JS_Snake.game = (function () {
         draw();
 
         if (snake.checkCollision()) {
-            snake.retreat();
+            //snake.retreat();
             snake.draw(ctx);
             gameOver();
         } else {
@@ -80,18 +80,17 @@ JS_Snake.game = (function () {
 
     function gameOver() {
         ctx.save();
-        ctx.font = "bold 40px sans-serif";
+        ctx.font = "bold 50px monospace";
         ctx.fillStyle = "black";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.lineWidth = 2;
         var centerX = JS_Snake.width / 2;
         var centerY = JS_Snake.height / 2;
-        ctx.fillText("Game Over", centerX, centerY);
-        ctx.font = "bold 20px sans-serif";
-        ctx.fillText("Press space to restart", centerX, centerY);
+        ctx.fillText("Game Over", centerX, centerY - 75);
+        ctx.font = "bold 20px monospace";
+        ctx.fillText("Press space to restart", centerX, centerY + 75);
         ctx.restore();
-
     }
 
     function bindEvents() {
@@ -180,6 +179,9 @@ JS_Snake.snake = function () {
     posArray.push([6, 4]);
     posArray.push([5, 4]);
     posArray.push([4, 4]);
+    posArray.push([3, 4]);
+    posArray.push([2, 4]);
+    posArray.push([1, 4]);
     var direction = 'right';
     var nextDirection = direction;
 
