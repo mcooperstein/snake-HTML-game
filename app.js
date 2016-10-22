@@ -113,7 +113,14 @@ JS_Snake.game = (function () {
             }
 
         });
-
+        $(JS_Snake).bind('appleEaten', function (event, snakePositions) {
+            apple.setNewPosition(snakePositions);
+            score++;
+            frameLength *= 0.99;
+        });
+        $(canvas).click(function () {
+            location.reload();
+        })
     }
 
     return {
@@ -135,12 +142,40 @@ JS_Snake.apple = function () {
         ctx.fill();
         ctx.restore();
     }
+
+    function random(low, high) {
+        return Math.floor(Math.random() * (high - low + 1) + low);
+    }
+    //find a random position within the canvas
+    function getRandomPosition() {
+        var x = random(1, JS_Snake.widthInBlocks - 2);
+        var y = random(1, JS_Snake.heightInBlocks - 2);
+        return [x, y];
+    }
+
+    function setNewPosition(snakeArray) {
+        var newPosition = getRandomPosition();
+        //if new position is already covered by the snake,
+        //call the function again until that is no longer the case
+        if (JS_Snake.checkCoordinateInArray(newPosition, snakeArray)) {
+            return setNewPosition(snakeArray);
+        } else {
+            position = newPosition;
+        }
+    }
+
+    function getPosition() {
+        return position;
+    }
     return {
-        draw: draw
+        draw: draw,
+        setNewPosition: setNewPosition,
+        getPosition: getPosition
     };
 };
 
 JS_Snake.snake = function () {
+    var previousPosArray;
     var posArray = [];
     posArray.push([6, 4]);
     posArray.push([5, 4]);
@@ -183,8 +218,31 @@ JS_Snake.snake = function () {
         ctx.restore();
     }
 
-    function advance() {
-        var nextPosition = posArray[0].slice(); //copy head of snake
+    function checkCollision() {
+        var wallCollision = false;
+        var snakeCollision = false;
+        var head = posArray[0]; //just the head of the snake
+        var rest = posArray.slice(1) //rest of the snake (from the 1 index to the end)
+        var snakeX = head[0];
+        var snakeY = head[1];
+        var minX = 1;
+        var minY = 1;
+        var maxX = JS_Snake.widthInBlocks - 1;
+        var maxY = JS_Snake.heightInBlocks - 1;
+        var outsideHorizantalBounds = snakeX < minX || snakeX >= maxX;
+        var outsideVerticalBounds = snakeY < minY || snakeY >= maxY;
+
+        if (outsideHorizantalBounds || outsideVerticalBounds) {
+            wallCollision = true;
+        }
+        //check if snake head collides with rest of snake
+        snakeCollision = JS_Snake.checkCoordinateInArray(head, rest);
+        return wallCollision || snakeCollision;
+    }
+
+    function advance(apple) {
+        //copy head of snake otherwise changes below affect head of the snake
+        var nextPosition = posArray[0].slice();
         //nextPosition[0] += 1; //add 1 to the x position
         direction = nextDirection;
         switch (direction) {
@@ -203,16 +261,25 @@ JS_Snake.snake = function () {
         default:
             throw ("Invalid direction");
         }
-
+        previousPosArray = posArray.slice();
         //add the new position to the beginning of the array
         posArray.unshift(nextPosition);
-        //and remove the last position
-        posArray.pop();
+        if (isEatingApple(posArray[0], apple)) {
+            $(JS_Snake).trigger('appleEaten', [posArray])
+        } else {
+            //remove the last position of the snake array
+            posArray.pop();
+        }
+    }
+
+    function isEatingApple(head, apple) {
+        return JS_Snake.equalCoordinates(head, apple.getPosition());
     }
     return {
         draw: draw,
         advance: advance,
-        setDirection: setDirection
+        setDirection: setDirection,
+        checkCollision: checkCollision
     };
 };
 
