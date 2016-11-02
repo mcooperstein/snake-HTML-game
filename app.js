@@ -16,8 +16,6 @@ JS_Snake.checkCoordinateInArray = function (coord, arr) {
 
 JS_Snake.game = (function () {
     var canvas, ctx;
-    //var xPos = 0;
-    //var yPos = 0;
     JS_Snake.width = 500;
     JS_Snake.height = 500;
     JS_Snake.blockSize = 15;
@@ -128,7 +126,14 @@ JS_Snake.game = (function () {
 })();
 
 JS_Snake.apple = function () {
-    var position = [6, 6];
+    var randomX = generateRandomNumber();
+    var randomY = generateRandomNumber();
+    var position = [randomX, randomY];
+
+    function generateRandomNumber() {
+        var randomNumber = Math.floor(Math.random() * 30) + 1;
+        return randomNumber;
+    }
 
     function draw(ctx) {
         ctx.save();
