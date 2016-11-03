@@ -16,8 +16,6 @@ JS_Snake.checkCoordinateInArray = function (coord, arr) {
 
 JS_Snake.game = (function () {
     var canvas, ctx;
-    //var xPos = 0;
-    //var yPos = 0;
     JS_Snake.width = 500;
     JS_Snake.height = 500;
     JS_Snake.blockSize = 15;
@@ -27,6 +25,7 @@ JS_Snake.game = (function () {
     var snake;
     var apple;
     var score;
+    var highscore = localStorage.getItem("highscore");
     var timeout;
 
     function init() {
@@ -44,14 +43,11 @@ JS_Snake.game = (function () {
     }
 
     function gameLoop() {
-        //xPos += 2;
-        //yPos += 4;
         ctx.clearRect(0, 0, JS_Snake.width, JS_Snake.height);
         snake.advance(apple);
         draw();
 
         if (snake.checkCollision()) {
-            //snake.retreat();
             snake.draw(ctx);
             gameOver();
         } else {
@@ -61,10 +57,10 @@ JS_Snake.game = (function () {
 
     function draw() {
         snake.draw(ctx);
-        //drawBorder();
         apple.draw(ctx);
         drawScore();
     }
+
 
     function drawScore() {
         ctx.save();
@@ -74,7 +70,14 @@ JS_Snake.game = (function () {
         ctx.textBaseline = "middle";
         var centerX = JS_Snake.width / 2;
         var centerY = JS_Snake.height / 2;
+        /*highscore = 0;
+        if (score > highscore && snake.checkCollision()) {
+            highscore = score;
+            alert("You got the high score: " + highscore);
+            localStorage.setItem("highscore", score);
+        } else {*/
         ctx.fillText(score.toString(), centerX, centerY);
+        //}
         ctx.restore();
     }
 
@@ -90,6 +93,15 @@ JS_Snake.game = (function () {
         ctx.fillText("Game Over", centerX, centerY - 75);
         ctx.font = "bold 20px monospace";
         ctx.fillText("Press space to restart", centerX, centerY + 75);
+        //highscore = 0;
+        if (score > highscore && snake.checkCollision()) {
+            highscore = score;
+            localStorage.setItem("highscore", score);
+            ctx.font = "bold 50px serif";
+            ctx.fillStyle = "red";
+            ctx.textAlign = "center";
+            ctx.fillText("High Score!!!", centerX, centerY - 150);
+        }
         ctx.restore();
     }
 
@@ -128,7 +140,15 @@ JS_Snake.game = (function () {
 })();
 
 JS_Snake.apple = function () {
-    var position = [6, 6];
+
+    var randomX = generateRandomNumber();
+    var randomY = generateRandomNumber();
+    var position = [randomX, randomY];
+    //function to have apple spawn at random position when game starts
+    function generateRandomNumber() {
+        var randomNumber = Math.floor(Math.random() * 30) + 1;
+        return randomNumber;
+    }
 
     function draw(ctx) {
         ctx.save();
