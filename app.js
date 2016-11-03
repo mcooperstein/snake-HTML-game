@@ -70,14 +70,7 @@ JS_Snake.game = (function () {
         ctx.textBaseline = "middle";
         var centerX = JS_Snake.width / 2;
         var centerY = JS_Snake.height / 2;
-        /*highscore = 0;
-        if (score > highscore && snake.checkCollision()) {
-            highscore = score;
-            alert("You got the high score: " + highscore);
-            localStorage.setItem("highscore", score);
-        } else {*/
         ctx.fillText(score.toString(), centerX, centerY);
-        //}
         ctx.restore();
     }
 
@@ -93,7 +86,6 @@ JS_Snake.game = (function () {
         ctx.fillText("Game Over", centerX, centerY - 75);
         ctx.font = "bold 20px monospace";
         ctx.fillText("Press space to restart", centerX, centerY + 75);
-        //highscore = 0;
         if (score > highscore && snake.checkCollision()) {
             highscore = score;
             localStorage.setItem("highscore", score);
