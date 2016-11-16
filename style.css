@@ -1,3 +1,7 @@
 #jsSnake {
-    background-color: #fff;
+    background-color: #ccc;
+}
+
+canvas {
+    border: 2px solid black;
 }
